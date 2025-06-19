@@ -8,13 +8,18 @@
 </head>
 <body>
     <div class="container">
-        <h1>Live Recognition</h1>
-        <div class="webcam-area" style="position:relative;">
+        <button class="theme-toggle" id="themeToggle" title="Toggle light/dark mode">Light/Dark</button>
+        <div class="header">
+            <span class="header-icon"></span>
+            <span>Live Recognition</span>
+        </div>
+        <div class="webcam-area glow-red" id="webcamArea" style="position:relative;">
             <video id="webcam" autoplay playsinline style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:1;"></video>
             <canvas id="overlay" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:2;"></canvas>
         </div>
         <div class="results-area" id="results">
-            <span>No recognition results yet.</span>
+            <div class="spinner" id="spinner"></div>
+            <div class="pulse-text" id="waitingText">Waiting for gesture...</div>
         </div>
     </div>
     <!-- MediaPipe Hands and Drawing Utils -->
@@ -24,13 +29,28 @@
         const video = document.getElementById('webcam');
         const canvas = document.getElementById('overlay');
         const ctx = canvas.getContext('2d');
-
+        const webcamArea = document.getElementById('webcamArea');
+        const resultsArea = document.getElementById('results');
+        const spinner = document.getElementById('spinner');
+        const waitingText = document.getElementById('waitingText');
+        let handDetected = false;
+        let lastGesture = '';
+        // Theme toggle
+        const themeToggle = document.getElementById('themeToggle');
+        themeToggle.onclick = () => {
+            const isDark = document.body.getAttribute('data-theme') === 'dark';
+            document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+            themeToggle.textContent = isDark ? '🌙' : '☀️';
+        };
+        // Set default theme
+        if (!document.body.getAttribute('data-theme')) {
+            document.body.setAttribute('data-theme', 'light');
+        }
         // Resize canvas to match video
         function resizeCanvas() {
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
         }
-
         // Access webcam
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
             navigator.mediaDevices.getUserMedia({ video: true })
@@ -41,18 +61,19 @@
                     };
                 })
                 .catch(function(err) {
-                    document.getElementById('results').innerHTML = '<span style="color:red">Webcam access denied.</span>';
+                    resultsArea.innerHTML = '<span style="color:red">Webcam access denied.</span>';
                 });
         } else {
-            document.getElementById('results').innerHTML = '<span style="color:red">Webcam not supported.</span>';
+            resultsArea.innerHTML = '<span style="color:red">Webcam not supported.</span>';
         }
-
         // MediaPipe Hands setup
         function onResults(results) {
             ctx.save();
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             let landmarkData = [];
-            if (results.multiHandLandmarks) {
+            handDetected = false;
+            if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                handDetected = true;
                 for (const landmarks of results.multiHandLandmarks) {
                     window.drawConnectors(ctx, landmarks, window.HAND_CONNECTIONS, {color: '#00FF00', lineWidth: 2});
                     window.drawLandmarks(ctx, landmarks, {color: '#FF0000', lineWidth: 1});
@@ -60,6 +81,17 @@
                 }
             }
             ctx.restore();
+            // Glowing border
+            webcamArea.classList.toggle('glow-green', handDetected);
+            webcamArea.classList.toggle('glow-red', !handDetected);
+            // Show spinner/pulse if no gesture
+            if (!handDetected) {
+                spinner.style.display = '';
+                waitingText.style.display = '';
+                resultsArea.querySelectorAll('.recognized-gesture').forEach(e => e.remove());
+                lastGesture = '';
+                return;
+            }
             // Send to backend if any hand detected
             if (landmarkData.length > 0) {
                 fetch('/predict', {
@@ -69,27 +101,33 @@
                 })
                 .then(res => res.json())
                 .then(data => {
-                    if (data.prediction) {
-                        document.getElementById('results').innerHTML = `<span class="recognized-gesture">${data.prediction}</span>`;
-                        // Voice output using Web Speech API
+                    spinner.style.display = 'none';
+                    waitingText.style.display = 'none';
+                    if (data.prediction && data.prediction !== lastGesture) {
+                        lastGesture = data.prediction;
+                        // Remove old gesture
+                        resultsArea.querySelectorAll('.recognized-gesture').forEach(e => e.remove());
+                        // Slide-in animated feedback
+                        const gestureDiv = document.createElement('div');
+                        gestureDiv.className = 'recognized-gesture';
+                        gestureDiv.textContent = `Gesture recognized: ${data.prediction}`;
+                        resultsArea.appendChild(gestureDiv);
+                        // Voice output
                         if ('speechSynthesis' in window) {
                             const utter = new SpeechSynthesisUtterance(data.prediction);
-                            utter.lang = 'en-ZA'; // South African English
-                            window.speechSynthesis.cancel(); // Stop any previous speech
+                            utter.lang = 'en-ZA';
+                            window.speechSynthesis.cancel();
                             window.speechSynthesis.speak(utter);
                         }
-                    } else {
-                        document.getElementById('results').innerText = data.error || 'No gesture recognized.';
                     }
                 })
                 .catch(() => {
-                    document.getElementById('results').innerText = 'Error sending data.';
+                    spinner.style.display = 'none';
+                    waitingText.style.display = 'none';
+                    resultsArea.innerHTML = '<span style="color:red">Error sending data.</span>';
                 });
-            } else {
-                document.getElementById('results').innerText = 'No hand detected.';
             }
         }
-
         let hands;
         function setupHands() {
             hands = new window.Hands({
@@ -103,7 +141,6 @@
             });
             hands.onResults(onResults);
         }
-
         function startHandTracking() {
             if (!hands) return;
             const camera = new window.Camera(video, {
@@ -116,7 +153,6 @@
             });
             camera.start();
         }
-
         window.addEventListener('DOMContentLoaded', () => {
             setupHands();
             video.addEventListener('loadeddata', startHandTracking);
