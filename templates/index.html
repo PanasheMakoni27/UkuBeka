@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Live Recognition</h1>
+        <div class="webcam-area" style="position:relative;">
+            <video id="webcam" autoplay playsinline style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:1;"></video>
+            <canvas id="overlay" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:2;"></canvas>
+        </div>
+        <div class="results-area" id="results">
+            <span>No recognition results yet.</span>
+        </div>
+    </div>
+    <!-- MediaPipe Hands and Drawing Utils -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+    <script>
+        const video = document.getElementById('webcam');
+        const canvas = document.getElementById('overlay');
+        const ctx = canvas.getContext('2d');
+
+        // Resize canvas to match video
+        function resizeCanvas() {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+        }
+
+        // Access webcam
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function(stream) {
+                    video.srcObject = stream;
+                    video.onloadedmetadata = () => {
+                        resizeCanvas();
+                    };
+                })
+                .catch(function(err) {
+                    document.getElementById('results').innerHTML = '<span style="color:red">Webcam access denied.</span>';
+                });
+        } else {
+            document.getElementById('results').innerHTML = '<span style="color:red">Webcam not supported.</span>';
+        }
+
+        // MediaPipe Hands setup
+        function onResults(results) {
+            ctx.save();
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            let landmarkData = [];
+            if (results.multiHandLandmarks) {
+                for (const landmarks of results.multiHandLandmarks) {
+                    window.drawConnectors(ctx, landmarks, window.HAND_CONNECTIONS, {color: '#00FF00', lineWidth: 2});
+                    window.drawLandmarks(ctx, landmarks, {color: '#FF0000', lineWidth: 1});
+                    landmarkData.push(landmarks.map(lm => ({x: lm.x, y: lm.y, z: lm.z})));
+                }
+            }
+            ctx.restore();
+            // Send to backend if any hand detected
+            if (landmarkData.length > 0) {
+                fetch('/predict', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({hands: landmarkData})
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.prediction) {
+                        document.getElementById('results').innerHTML = `<span class="recognized-gesture">${data.prediction}</span>`;
+                        // Voice output using Web Speech API
+                        if ('speechSynthesis' in window) {
+                            const utter = new SpeechSynthesisUtterance(data.prediction);
+                            utter.lang = 'en-ZA'; // South African English
+                            window.speechSynthesis.cancel(); // Stop any previous speech
+                            window.speechSynthesis.speak(utter);
+                        }
+                    } else {
+                        document.getElementById('results').innerText = data.error || 'No gesture recognized.';
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('results').innerText = 'Error sending data.';
+                });
+            } else {
+                document.getElementById('results').innerText = 'No hand detected.';
+            }
+        }
+
+        let hands;
+        function setupHands() {
+            hands = new window.Hands({
+                locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+            });
+            hands.setOptions({
+                maxNumHands: 2,
+                modelComplexity: 1,
+                minDetectionConfidence: 0.7,
+                minTrackingConfidence: 0.7
+            });
+            hands.onResults(onResults);
+        }
+
+        function startHandTracking() {
+            if (!hands) return;
+            const camera = new window.Camera(video, {
+                onFrame: async () => {
+                    resizeCanvas();
+                    await hands.send({image: video});
+                },
+                width: 640,
+                height: 480
+            });
+            camera.start();
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            setupHands();
+            video.addEventListener('loadeddata', startHandTracking);
+        });
+    </script>
+</body>
+</html>
