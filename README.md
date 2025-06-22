@@ -171,6 +171,3 @@ Each entry contains 21 (x, y, z) hand landmark coordinates, a gesture label, and
 - Ensure your browser allows webcam access.
 - For best results, collect a diverse dataset for each gesture.
 - The model and backend can be retrained and improved as needed.
-
-## License
-MIT License

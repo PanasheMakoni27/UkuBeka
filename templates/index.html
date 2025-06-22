@@ -7,28 +7,73 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+    <header class="ukubeka-header">
+        <div class="ukubeka-logo">
+            <!-- Logo removed as requested -->
+        </div>
+        <div class="ukubeka-title">Gesture-to-Text Communication</div>
+    </header>
     <div class="container">
-        <button class="theme-toggle" id="themeToggle" title="Toggle light/dark mode">Light/Dark</button>
-        <div class="header">
-            <span class="header-icon"></span>
-            <span>Live Recognition</span>
-        </div>
-        <div class="webcam-area glow-red" id="webcamArea" style="position:relative;">
-            <video id="webcam" autoplay playsinline muted style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:1;background:#000;"></video>
-            <canvas id="overlay" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:2;"></canvas>
-        </div>
-        <div class="results-area" id="results">
-            <div class="spinner" id="spinner"></div>
-            <div class="pulse-text" id="waitingText">Waiting for gesture...</div>
-        </div>
-        <div class="translation-panel" id="translationPanel">
-            <span class="translation-label">Translation:</span>
-            <span class="translation-word" id="translationWord">---</span>
-        </div>
-        <div class="translation-panel" id="translatedTextPanel">
-            <span class="translation-label">Gesture to Text:</span>
-            <span class="translation-word" id="translatedText">Waiting for gesture…</span>
-        </div>
+        <button class="theme-toggle" id="themeToggle" title="Toggle light/dark mode"></button>
+        <main class="main-flex-panels">
+            <section class="gesture-panel gesture-panel-left">
+                <h2>Gesture Detection</h2>
+                <div class="camera-icon" aria-hidden="true">
+                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="6" y="14" width="36" height="24" rx="4" fill="#4fc3f7"/>
+                        <rect x="14" y="8" width="20" height="8" rx="2" fill="#b3e5fc"/>
+                        <circle cx="24" cy="26" r="7" fill="#181c24" stroke="#90caf9" stroke-width="2"/>
+                        <circle cx="24" cy="26" r="3" fill="#90caf9"/>
+                    </svg>
+                </div>
+                <div class="camera-preview-label">Camera Preview</div>
+                <div class="camera-instruction">Start recording to begin gesture detection</div>
+                <div class="webcam-area" id="webcamArea">
+                    <video id="webcam" autoplay playsinline muted style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:1;background:#000;border-radius:5px;"></video>
+                    <canvas id="overlay" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:2;"></canvas>
+                    <div class="webcam-placeholder" id="webcamPlaceholder">Camera unavailable</div>
+                </div>
+                <button class="start-detection-btn" id="startDetectionBtn">Start Detection</button>
+            </section>
+            <section class="translated-panel">
+                <h2>Translated Text</h2>
+                <div class="hand-icon" aria-hidden="true">
+                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M14 28V14a4 4 0 1 1 8 0v14" stroke="#81c784" stroke-width="3" stroke-linecap="round"/>
+                        <path d="M22 28V10a4 4 0 1 1 8 0v18" stroke="#81c784" stroke-width="3" stroke-linecap="round"/>
+                        <path d="M30 28V18a4 4 0 1 1 8 0v10" stroke="#81c784" stroke-width="3" stroke-linecap="round"/>
+                        <rect x="10" y="28" width="28" height="10" rx="5" fill="#c8e6c9"/>
+                    </svg>
+                </div>
+                <div class="translated-placeholder">Start gesture detection to see translated text here</div>
+                <div class="output-panel">
+                    <div class="output-row">
+                        <span class="output-label">Translation:</span>
+                        <span class="output-value" id="translationWord">---</span>
+                    </div>
+                    <div class="output-row">
+                        <span class="output-label">Pronunciation:</span>
+                        <span class="output-value" id="pronunciationWord">---</span>
+                    </div>
+                </div>
+                <button class="clear-btn" id="clearBtn">Clear</button>
+            </section>
+        </main>
+        <section class="session-stats">
+            <h3 class="stats-title">Session Statistics</h3>
+            <div class="stats-row">
+                <div class="stats-label">Words</div>
+                <div class="stats-value" id="statsWords">0</div>
+            </div>
+            <div class="stats-row">
+                <div class="stats-label">Accuracy</div>
+                <div class="stats-value" id="statsAccuracy">0%</div>
+            </div>
+            <div class="stats-row">
+                <div class="stats-label">Status</div>
+                <div class="stats-value" id="statsStatus">Idle</div>
+            </div>
+        </section>
     </div>
     <!-- MediaPipe Hands and Drawing Utils -->
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
@@ -194,21 +239,51 @@
             });
             hands.onResults(onResults);
         }
-        // Remove MediaPipe Camera usage and use requestAnimationFrame loop
+        // Start Detection button logic
+        const startDetectionBtn = document.getElementById('startDetectionBtn');
+        let detectionActive = false;
+        let animationFrameId = null;
+
         function startHandTracking() {
             if (!hands) return;
+            detectionActive = true;
             async function processFrame() {
+                if (!detectionActive) return;
                 if (video.readyState === 4 && video.videoWidth > 0 && video.videoHeight > 0) {
                     resizeCanvas();
                     await hands.send({image: video});
                 }
-                requestAnimationFrame(processFrame);
+                animationFrameId = requestAnimationFrame(processFrame);
             }
             processFrame();
         }
+
+        function stopHandTracking() {
+            detectionActive = false;
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+                animationFrameId = null;
+            }
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            webcamArea.classList.remove('glow-green', 'glow-red');
+            translationWord.textContent = '---';
+            translatedText.textContent = 'Waiting for gesture…';
+        }
+
+        startDetectionBtn.addEventListener('click', () => {
+            if (!detectionActive) {
+                startDetectionBtn.textContent = 'Stop Detection';
+                startHandTracking();
+            } else {
+                startDetectionBtn.textContent = 'Start Detection';
+                stopHandTracking();
+            }
+        });
+
         window.addEventListener('DOMContentLoaded', () => {
             setupHands();
-            video.addEventListener('loadeddata', startHandTracking);
+            // Do not auto-start detection
+            startDetectionBtn.textContent = 'Start Detection';
         });
     </script>
 </body>
