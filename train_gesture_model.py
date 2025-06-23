@@ -6,7 +6,7 @@ from sklearn.metrics import classification_report
 import joblib
 
 # Load labeled data (assume JSON: [{"landmarks": [[x, y, z], ...], "label": "gesture_name"}, ...])
-with open('gesture_landmarks.json', 'r') as f:
+with open('data/gesture_landmarks.json', 'r') as f:
     data = json.load(f)
 
 X = []

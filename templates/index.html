@@ -1,43 +1,110 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth antialiased bg-brand-dark text-brand-dark-text">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flask App</title>
+    <title>UkuBeka – Gesture-to-Text Communication</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Tailwind CDN for development/prototyping -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: '#1976d2',
+              secondary: '#4fc3f7',
+              accent: '#81c784',
+              dark: '#181c24',
+              light: '#f4f4f4',
+              error: '#ff0033',
+              success: '#00ff6a',
+              warning: '#ffb300',
+              info: '#4fc3f7',
+              muted: '#b0bec5',
+              'dark-text': '#f4f4f4',
+              'light-text': '#23272f',
+            },
+            fontFamily: {
+              brand: [
+                'Segoe UI', 'Roboto', 'Open Sans', 'Arial', 'sans-serif'
+              ]
+            },
+            borderRadius: {
+              brand: '24px',
+            },
+            boxShadow: {
+              brand: '0 4px 32px #1976d233, 0 1.5px 8px #23272f44',
+            },
+            backgroundImage: {
+              'brand-gradient': 'linear-gradient(135deg, #1976d2 0%, #4fc3f7 100%)',
+            },
+          }
+        }
+      }
+    </script>
 </head>
-<body>
-    <header class="ukubeka-header">
-        <div class="ukubeka-logo">
-            <!-- Logo removed as requested -->
+<body class="font-brand min-h-screen bg-gradient-to-br from-brand-dark to-brand-secondary text-brand-dark-text transition-colors duration-500">
+    <header class="flex items-center gap-4 py-4 px-4 md:px-6 rounded-brand shadow-brand bg-brand-gradient mb-8 w-full max-w-7xl mx-auto">
+        <div class="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-full bg-white/80 shadow-md" aria-hidden="true">
+            <!-- Modern SVG Logo Placeholder -->
+            <svg class="logo-img" width="48" height="48" viewBox="0 0 48 48" fill="none" aria-label="UkuBeka Logo" role="img">
+                <circle cx="24" cy="24" r="22" fill="url(#grad1)" stroke="#1976d2" stroke-width="2"/>
+                <path d="M16 32 Q24 16 32 32" stroke="#fff" stroke-width="3" fill="none"/>
+                <circle cx="24" cy="24" r="6" fill="#4fc3f7"/>
+                <defs>
+                    <linearGradient id="grad1" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#1976d2"/>
+                        <stop offset="1" stop-color="#4fc3f7"/>
+                    </linearGradient>
+                </defs>
+            </svg>
         </div>
-        <div class="ukubeka-title">Gesture-to-Text Communication</div>
+        <div class="text-lg md:text-2xl lg:text-3xl font-bold tracking-tight text-dark-text drop-shadow" tabindex="0">Gesture-to-Text Communication</div>
     </header>
-    <div class="container">
-        <button class="theme-toggle" id="themeToggle" title="Toggle light/dark mode"></button>
-        <main class="main-flex-panels">
-            <section class="gesture-panel gesture-panel-left">
-                <h2>Gesture Detection</h2>
-                <div class="camera-icon" aria-hidden="true">
-                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <div class="container mx-auto px-2 sm:px-4 max-w-7xl flex flex-col gap-8">
+        <button class="fixed top-4 right-4 z-50 w-10 h-10 rounded-full bg-light text-primary shadow-md flex items-center justify-center hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-primary transition-colors duration-200" id="themeToggle" title="Toggle light/dark mode" aria-label="Toggle light or dark mode"></button>
+        <main class="flex flex-col md:flex-row gap-8 w-full" aria-label="Main content panels">
+            <section class="bg-dark/80 rounded-brand shadow-brand p-4 md:p-6 flex flex-col items-center gap-4 w-full max-w-md mx-auto md:mx-0" aria-labelledby="gestureDetectionTitle" role="region" tabindex="0">
+                <h2 id="gestureDetectionTitle" tabindex="-1" class="text-xl md:text-2xl font-bold text-light-text mb-2">Gesture Detection</h2>
+                <div class="flex items-center justify-center w-12 h-12 md:w-16 md:h-16 rounded-full bg-secondary/20 shadow-inner mb-2 animate-pulse" aria-hidden="true">
+                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
                         <rect x="6" y="14" width="36" height="24" rx="4" fill="#4fc3f7"/>
                         <rect x="14" y="8" width="20" height="8" rx="2" fill="#b3e5fc"/>
                         <circle cx="24" cy="26" r="7" fill="#181c24" stroke="#90caf9" stroke-width="2"/>
                         <circle cx="24" cy="26" r="3" fill="#90caf9"/>
                     </svg>
                 </div>
-                <div class="camera-preview-label">Camera Preview</div>
-                <div class="camera-instruction">Start recording to begin gesture detection</div>
-                <div class="webcam-area" id="webcamArea">
-                    <video id="webcam" autoplay playsinline muted style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:1;background:#000;border-radius:5px;"></video>
-                    <canvas id="overlay" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:2;"></canvas>
-                    <div class="webcam-placeholder" id="webcamPlaceholder">Camera unavailable</div>
+                <span class="text-xs md:text-sm text-muted font-medium mt-2" id="cameraPreviewLabel">Camera Preview</span>
+                <p class="text-xs text-muted mb-2" id="cameraInstruction">Start recording to begin gesture detection</p>
+                <div class="relative aspect-video w-full max-w-xs rounded-lg overflow-hidden border-4 border-muted shadow-inner flex items-center justify-center bg-black" id="webcamArea" aria-label="Live camera feed with gesture overlay" role="group">
+                    <video id="webcam" aria-label="Live camera view" aria-describedby="cameraPreviewLabel cameraInstruction" autoplay playsinline muted class="absolute top-0 left-0 w-full h-full object-cover z-10 rounded-lg" tabindex="0"></video>
+                    <canvas id="overlay" aria-label="Gesture overlay" class="absolute top-0 left-0 w-full h-full z-20 pointer-events-none" tabindex="-1"></canvas>
+                    <div class="absolute inset-0 flex items-center justify-center text-muted text-base md:text-lg font-semibold bg-black/70 z-30" id="webcamPlaceholder" aria-live="polite" aria-atomic="true">Camera unavailable</div>
                 </div>
-                <button class="start-detection-btn" id="startDetectionBtn">Start Detection</button>
+                <div id="results" class="mt-2"></div>
+                <button class="mt-4 px-4 md:px-6 py-2 rounded-full bg-primary text-white font-semibold shadow-lg hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-accent active:scale-95 transition-all duration-200 w-full md:w-auto" id="startDetectionBtn" type="button" aria-pressed="false" aria-controls="webcamArea" aria-label="Start or stop gesture detection">
+                    Start Detection
+                </button>
             </section>
-            <section class="translated-panel">
-                <h2>Translated Text</h2>
-                <div class="hand-icon" aria-hidden="true">
+            <section class="bg-light rounded-brand shadow-brand p-4 md:p-6 flex flex-col gap-2 w-full max-w-xs mx-auto md:mx-0" aria-label="Session statistics" tabindex="0">
+                <h3 class="text-base md:text-lg font-semibold text-primary mb-2">Session Statistics</h3>
+                <div class="flex justify-between items-center py-1">
+                    <div class="text-xs md:text-sm text-muted">Words</div>
+                    <div class="text-sm md:text-base font-bold" id="statsWords">0</div>
+                </div>
+                <div class="flex justify-between items-center py-1">
+                    <div class="text-xs md:text-sm text-muted">Accuracy</div>
+                    <div class="text-sm md:text-base font-bold" id="statsAccuracy">0%</div>
+                </div>
+                <div class="flex justify-between items-center py-1">
+                    <div class="text-xs md:text-sm text-muted">Status</div>
+                    <div class="text-sm md:text-base font-bold" id="statsStatus">Idle</div>
+                </div>
+            </section>
+            <section class="bg-light rounded-brand shadow-brand p-4 md:p-6 flex flex-col items-center gap-4 w-full max-w-md mx-auto md:mx-0" aria-label="Translated text panel" tabindex="0">
+                <h2 class="text-xl md:text-2xl font-bold text-light-text mb-2">Translated Text</h2>
+                <div class="hand-icon mb-2" aria-hidden="true">
                     <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M14 28V14a4 4 0 1 1 8 0v14" stroke="#81c784" stroke-width="3" stroke-linecap="round"/>
                         <path d="M22 28V10a4 4 0 1 1 8 0v18" stroke="#81c784" stroke-width="3" stroke-linecap="round"/>
@@ -45,36 +112,29 @@
                         <rect x="10" y="28" width="28" height="10" rx="5" fill="#c8e6c9"/>
                     </svg>
                 </div>
-                <div class="translated-placeholder">Start gesture detection to see translated text here</div>
-                <div class="output-panel">
-                    <div class="output-row">
-                        <span class="output-label">Translation:</span>
-                        <span class="output-value" id="translationWord">---</span>
+                <div class="text-xs md:text-sm text-muted mb-2">Start gesture detection to see translated text here</div>
+                <div id="translatedTextPanel" class="w-full">
+                    <div id="translatedText" class="flex flex-col gap-2 min-h-[2.5rem] text-base md:text-lg font-medium text-dark-text bg-secondary/10 rounded-md px-4 py-2 mb-2 transition-colors duration-200" aria-live="polite" aria-atomic="true">
+                        <!-- Translated text will appear here -->
                     </div>
-                    <div class="output-row">
-                        <span class="output-label">Pronunciation:</span>
-                        <span class="output-value" id="pronunciationWord">---</span>
+                    <div class="flex flex-col gap-2">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs md:text-sm text-muted">Translation:</span>
+                            <span class="text-sm md:text-base font-bold" id="translationWord">---</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs md:text-sm text-muted">Pronunciation:</span>
+                            <span class="text-sm md:text-base font-bold" id="pronunciationWord">---</span>
+                        </div>
                     </div>
                 </div>
-                <button class="clear-btn" id="clearBtn">Clear</button>
+                <button class="mt-4 px-4 py-2 rounded-full bg-error text-white font-semibold shadow hover:bg-warning focus:outline-none focus:ring-2 focus:ring-accent active:scale-95 transition-all duration-200 w-full md:w-auto" id="clearBtn">Clear</button>
             </section>
         </main>
-        <section class="session-stats">
-            <h3 class="stats-title">Session Statistics</h3>
-            <div class="stats-row">
-                <div class="stats-label">Words</div>
-                <div class="stats-value" id="statsWords">0</div>
-            </div>
-            <div class="stats-row">
-                <div class="stats-label">Accuracy</div>
-                <div class="stats-value" id="statsAccuracy">0%</div>
-            </div>
-            <div class="stats-row">
-                <div class="stats-label">Status</div>
-                <div class="stats-value" id="statsStatus">Idle</div>
-            </div>
-        </section>
     </div>
+    <!-- Spinner and feedback animations -->
+    <div class="spinner animate-spin w-8 h-8 border-4 border-secondary border-t-transparent rounded-full mx-auto my-4" id="spinner" style="display:none"></div>
+    <div class="recognized-gesture animate-fade-in-up text-success font-bold text-lg mb-2" style="display:none"></div>
     <!-- MediaPipe Hands and Drawing Utils -->
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
@@ -154,36 +214,87 @@
             return flat;
         }
 
+        function drawConfidenceMeter(confidence, x, y) {
+            // Draw a circular confidence meter at (x, y)
+            const radius = 28;
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, 2 * Math.PI);
+            ctx.strokeStyle = '#4fc3f7';
+            ctx.lineWidth = 4;
+            ctx.globalAlpha = 0.7;
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(x, y, radius, -Math.PI/2, (2 * Math.PI * confidence) - Math.PI/2);
+            ctx.strokeStyle = confidence > 0.7 ? '#81c784' : (confidence > 0.4 ? '#ffb300' : '#ff0033');
+            ctx.lineWidth = 6;
+            ctx.globalAlpha = 1.0;
+            ctx.stroke();
+            ctx.restore();
+        }
+        function drawGestureTrail(trail) {
+            if (!trail || trail.length < 2) return;
+            ctx.save();
+            ctx.strokeStyle = '#1976d2';
+            ctx.lineWidth = 3;
+            ctx.globalAlpha = 0.5;
+            ctx.beginPath();
+            ctx.moveTo(trail[0].x, trail[0].y);
+            for (let i = 1; i < trail.length; i++) {
+                ctx.lineTo(trail[i].x, trail[i].y);
+            }
+            ctx.stroke();
+            ctx.restore();
+        }
+        let gestureTrail = [];
+        let lastTrailTime = 0;
+        let possibleMatches = [];
+        let lastPrediction = null;
+        let lastConfidence = 0;
         function onResults(results) {
             ctx.save();
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.globalAlpha = 1.0;
             let landmarkData = [];
             handDetected = false;
             let gestureText = 'Waiting for gesture…';
+            possibleMatches = [];
             if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
                 handDetected = true;
                 for (const landmarks of results.multiHandLandmarks) {
                     window.drawConnectors(ctx, landmarks, window.HAND_CONNECTIONS, {color: '#00FF00', lineWidth: 2});
                     window.drawLandmarks(ctx, landmarks, {color: '#FF0000', lineWidth: 1});
                     landmarkData.push(landmarks.map(lm => ({x: lm.x, y: lm.y, z: lm.z})));
-                    // Gesture-to-text translation (client-side demo)
-                    const flat = preprocessLandmarks(landmarks);
-                    const label = classifyGesture(flat);
-                    if (label && label !== 'Unknown') gestureText = label;
+                    // Gesture trail (use index finger tip)
+                    const tip = landmarks[8];
+                    if (tip) {
+                        const px = tip.x * canvas.width;
+                        const py = tip.y * canvas.height;
+                        if (Date.now() - lastTrailTime > 20) {
+                            gestureTrail.push({x: px, y: py});
+                            if (gestureTrail.length > 40) gestureTrail.shift();
+                            lastTrailTime = Date.now();
+                        }
+                    }
+                    drawGestureTrail(gestureTrail);
                 }
+            } else {
+                gestureTrail = [];
             }
             ctx.restore();
             // Glowing border
-            webcamArea.classList.toggle('glow-green', handDetected);
-            webcamArea.classList.toggle('glow-red', !handDetected);
+            if (webcamArea) {
+                webcamArea.classList.toggle('glow-green', handDetected);
+                webcamArea.classList.toggle('glow-red', !handDetected);
+            }
             // Show spinner/pulse if no gesture
             if (!handDetected) {
-                spinner.style.display = '';
-                waitingText.style.display = '';
-                resultsArea.querySelectorAll('.recognized-gesture').forEach(e => e.remove());
+                if (spinner) spinner.style.display = '';
+                if (waitingText) waitingText.style.display = '';
+                if (resultsArea) resultsArea.querySelectorAll('.recognized-gesture').forEach(e => e.remove());
                 lastGesture = '';
-                translationWord.textContent = '---';
-                translatedText.textContent = 'Waiting for gesture…';
+                if (translationWord) translationWord.textContent = '---';
+                if (translatedText) translatedText.textContent = 'Waiting for gesture…';
                 return;
             }
             // Send to backend if any hand detected
@@ -195,19 +306,20 @@
                 })
                 .then(res => res.json())
                 .then(data => {
-                    spinner.style.display = 'none';
-                    waitingText.style.display = 'none';
+                    if (spinner) spinner.style.display = 'none';
+                    if (waitingText) waitingText.style.display = 'none';
                     if (data.prediction && data.prediction !== lastGesture) {
                         lastGesture = data.prediction;
-                        // Remove old gesture
-                        resultsArea.querySelectorAll('.recognized-gesture').forEach(e => e.remove());
+                        if (resultsArea) resultsArea.querySelectorAll('.recognized-gesture').forEach(e => e.remove());
                         // Slide-in animated feedback
-                        const gestureDiv = document.createElement('div');
-                        gestureDiv.className = 'recognized-gesture';
-                        gestureDiv.textContent = `Gesture recognized: ${data.prediction}`;
-                        resultsArea.appendChild(gestureDiv);
-                        translationWord.textContent = data.prediction;
-                        translatedText.textContent = data.prediction;
+                        if (resultsArea) {
+                            const gestureDiv = document.createElement('div');
+                            gestureDiv.className = 'recognized-gesture animate-fade-in-up';
+                            gestureDiv.textContent = `Gesture recognized: ${data.prediction}`;
+                            resultsArea.appendChild(gestureDiv);
+                        }
+                        if (translationWord) translationWord.textContent = data.prediction;
+                        if (translatedText) translatedText.textContent = data.prediction;
                         // Voice output
                         if ('speechSynthesis' in window) {
                             const utter = new SpeechSynthesisUtterance(data.prediction);
@@ -216,13 +328,25 @@
                             window.speechSynthesis.speak(utter);
                         }
                     }
+                    // Confidence meter and possible matches
+                    if (data.confidence !== undefined) {
+                        lastConfidence = data.confidence;
+                        // Draw confidence meter at top right
+                        drawConfidenceMeter(lastConfidence, canvas.width - 50, 50);
+                    }
+                    if (data.possible_matches) {
+                        possibleMatches = data.possible_matches;
+                        // Show suggestions below translation
+                        let suggestionHtml = possibleMatches.map(m => `<span class='suggestion'>${m}</span>`).join(' ');
+                        if (translatedText) translatedText.innerHTML = data.prediction + '<br><span class="suggestions">' + suggestionHtml + '</span>';
+                    }
                 })
                 .catch(() => {
-                    spinner.style.display = 'none';
-                    waitingText.style.display = 'none';
-                    resultsArea.innerHTML = '<span style="color:red">Error sending data.</span>';
-                    translationWord.textContent = '---';
-                    translatedText.textContent = 'Waiting for gesture…';
+                    if (spinner) spinner.style.display = 'none';
+                    if (waitingText) waitingText.style.display = 'none';
+                    if (resultsArea) resultsArea.innerHTML = '<span style="color:red">Error sending data.</span>';
+                    if (translationWord) translationWord.textContent = '---';
+                    if (translatedText) translatedText.textContent = 'Waiting for gesture…';
                 });
             }
         }
@@ -265,9 +389,9 @@
                 animationFrameId = null;
             }
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            webcamArea.classList.remove('glow-green', 'glow-red');
-            translationWord.textContent = '---';
-            translatedText.textContent = 'Waiting for gesture…';
+            if (webcamArea) webcamArea.classList.remove('glow-green', 'glow-red');
+            if (translationWord) translationWord.textContent = '---';
+            if (translatedText) translatedText.textContent = 'Waiting for gesture…';
         }
 
         startDetectionBtn.addEventListener('click', () => {
@@ -285,6 +409,46 @@
             // Do not auto-start detection
             startDetectionBtn.textContent = 'Start Detection';
         });
+        // --- Gesture Edit Modal ---
+        function showGestureEdit(prediction, possibleMatches) {
+            // Simple modal for editing/correcting gesture before confirmation
+            let modal = document.createElement('div');
+            modal.className = 'gesture-edit-modal';
+            modal.innerHTML = `
+                <div class='modal-content'>
+                    <h3>Edit or Confirm Gesture</h3>
+                    <div>Prediction: <b>${prediction || ''}</b></div>
+                    <div>Suggestions: ${possibleMatches.map(m => `<button class='suggestion-btn'>${m}</button>`).join(' ')}</div>
+                    <input type='text' id='gestureEditInput' value='${prediction || ''}' style='margin-top:1rem;width:90%;font-size:1.1rem;padding:0.5rem;border-radius:8px;border:1px solid #ccc;'>
+                    <div style='margin-top:1.2rem;'>
+                        <button id='confirmGestureBtn' class='start-detection-btn'>Confirm</button>
+                        <button id='cancelGestureBtn' class='clear-btn'>Cancel</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            document.getElementById('confirmGestureBtn').onclick = () => {
+                let val = document.getElementById('gestureEditInput').value;
+                if (translationWord) translationWord.textContent = val;
+                if (translatedText) translatedText.textContent = val;
+                document.body.removeChild(modal);
+            };
+            document.getElementById('cancelGestureBtn').onclick = () => {
+                document.body.removeChild(modal);
+            };
+            modal.querySelectorAll('.suggestion-btn').forEach(btn => {
+                btn.onclick = () => {
+                    document.getElementById('gestureEditInput').value = btn.textContent;
+                };
+            });
+        }
+        // Add edit button to translation output
+        if (translationWord) {
+            translationWord.insertAdjacentHTML('afterend', `<button id='editGestureBtn' class='clear-btn' style='margin-left:1rem;margin-top:0.2rem;font-size:0.9rem;padding:0.3rem 1.2rem;'>Edit</button>`);
+            document.getElementById('editGestureBtn').onclick = () => {
+                showGestureEdit(translationWord.textContent, possibleMatches);
+            };
+        }
     </script>
 </body>
 </html>

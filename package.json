@@ -1,0 +1,25 @@
+{
+  "name": "ukubeka",
+  "version": "1.0.0",
+  "description": "This project is a web-based system for real-time recognition of South African Sign Language (SASL) gestures using hand landmarks from a webcam feed. It uses MediaPipe Hands in the browser, a Python Flask backend, and a machine learning model for gesture classification.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PanasheMakoni27/UkuBeka.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/PanasheMakoni27/UkuBeka/issues"
+  },
+  "homepage": "https://github.com/PanasheMakoni27/UkuBeka#readme",
+  "devDependencies": {
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.10"
+  }
+}
