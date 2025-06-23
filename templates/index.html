@@ -57,80 +57,85 @@
                         <stop stop-color="#1976d2"/>
                         <stop offset="1" stop-color="#4fc3f7"/>
                     </linearGradient>
-                </defs>
-            </svg>
+                </defs>            </svg>
         </div>
-        <div class="text-lg md:text-2xl lg:text-3xl font-bold tracking-tight text-dark-text drop-shadow" tabindex="0">Gesture-to-Text Communication</div>
+        <div class="flex flex-col items-center w-full">
+            <h1 class="text-2xl md:text-3xl font-bold text-white tracking-wide text-center">UkuBeka</h1>
+            <div class="text-base md:text-lg font-medium text-light-text mt-1 text-center" tabindex="0">Bridge communication. Empower lives.</div>
+        </div>
     </header>
-    <div class="container mx-auto px-2 sm:px-4 max-w-7xl flex flex-col gap-8">
-        <button class="fixed top-4 right-4 z-50 w-10 h-10 rounded-full bg-light text-primary shadow-md flex items-center justify-center hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-primary transition-colors duration-200" id="themeToggle" title="Toggle light/dark mode" aria-label="Toggle light or dark mode"></button>
-        <main class="flex flex-col md:flex-row gap-8 w-full" aria-label="Main content panels">
-            <section class="bg-dark/80 rounded-brand shadow-brand p-4 md:p-6 flex flex-col items-center gap-4 w-full max-w-md mx-auto md:mx-0" aria-labelledby="gestureDetectionTitle" role="region" tabindex="0">
-                <h2 id="gestureDetectionTitle" tabindex="-1" class="text-xl md:text-2xl font-bold text-light-text mb-2">Gesture Detection</h2>
-                <div class="flex items-center justify-center w-12 h-12 md:w-16 md:h-16 rounded-full bg-secondary/20 shadow-inner mb-2 animate-pulse" aria-hidden="true">
-                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-                        <rect x="6" y="14" width="36" height="24" rx="4" fill="#4fc3f7"/>
-                        <rect x="14" y="8" width="20" height="8" rx="2" fill="#b3e5fc"/>
-                        <circle cx="24" cy="26" r="7" fill="#181c24" stroke="#90caf9" stroke-width="2"/>
-                        <circle cx="24" cy="26" r="3" fill="#90caf9"/>
-                    </svg>
-                </div>
-                <span class="text-xs md:text-sm text-muted font-medium mt-2" id="cameraPreviewLabel">Camera Preview</span>
-                <p class="text-xs text-muted mb-2" id="cameraInstruction">Start recording to begin gesture detection</p>
-                <div class="relative aspect-video w-full max-w-xs rounded-lg overflow-hidden border-4 border-muted shadow-inner flex items-center justify-center bg-black" id="webcamArea" aria-label="Live camera feed with gesture overlay" role="group">
-                    <video id="webcam" aria-label="Live camera view" aria-describedby="cameraPreviewLabel cameraInstruction" autoplay playsinline muted class="absolute top-0 left-0 w-full h-full object-cover z-10 rounded-lg" tabindex="0"></video>
-                    <canvas id="overlay" aria-label="Gesture overlay" class="absolute top-0 left-0 w-full h-full z-20 pointer-events-none" tabindex="-1"></canvas>
-                    <div class="absolute inset-0 flex items-center justify-center text-muted text-base md:text-lg font-semibold bg-black/70 z-30" id="webcamPlaceholder" aria-live="polite" aria-atomic="true">Camera unavailable</div>
-                </div>
-                <div id="results" class="mt-2"></div>
-                <button class="mt-4 px-4 md:px-6 py-2 rounded-full bg-primary text-white font-semibold shadow-lg hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-accent active:scale-95 transition-all duration-200 w-full md:w-auto" id="startDetectionBtn" type="button" aria-pressed="false" aria-controls="webcamArea" aria-label="Start or stop gesture detection">
-                    Start Detection
-                </button>
-            </section>
-            <section class="bg-light rounded-brand shadow-brand p-4 md:p-6 flex flex-col gap-2 w-full max-w-xs mx-auto md:mx-0" aria-label="Session statistics" tabindex="0">
-                <h3 class="text-base md:text-lg font-semibold text-primary mb-2">Session Statistics</h3>
-                <div class="flex justify-between items-center py-1">
-                    <div class="text-xs md:text-sm text-muted">Words</div>
-                    <div class="text-sm md:text-base font-bold" id="statsWords">0</div>
-                </div>
-                <div class="flex justify-between items-center py-1">
-                    <div class="text-xs md:text-sm text-muted">Accuracy</div>
-                    <div class="text-sm md:text-base font-bold" id="statsAccuracy">0%</div>
-                </div>
-                <div class="flex justify-between items-center py-1">
-                    <div class="text-xs md:text-sm text-muted">Status</div>
-                    <div class="text-sm md:text-base font-bold" id="statsStatus">Idle</div>
-                </div>
-            </section>
-            <section class="bg-light rounded-brand shadow-brand p-4 md:p-6 flex flex-col items-center gap-4 w-full max-w-md mx-auto md:mx-0" aria-label="Translated text panel" tabindex="0">
-                <h2 class="text-xl md:text-2xl font-bold text-light-text mb-2">Translated Text</h2>
-                <div class="hand-icon mb-2" aria-hidden="true">
-                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M14 28V14a4 4 0 1 1 8 0v14" stroke="#81c784" stroke-width="3" stroke-linecap="round"/>
-                        <path d="M22 28V10a4 4 0 1 1 8 0v18" stroke="#81c784" stroke-width="3" stroke-linecap="round"/>
-                        <path d="M30 28V18a4 4 0 1 1 8 0v10" stroke="#81c784" stroke-width="3" stroke-linecap="round"/>
-                        <rect x="10" y="28" width="28" height="10" rx="5" fill="#c8e6c9"/>
-                    </svg>
-                </div>
-                <div class="text-xs md:text-sm text-muted mb-2">Start gesture detection to see translated text here</div>
-                <div id="translatedTextPanel" class="w-full">
-                    <div id="translatedText" class="flex flex-col gap-2 min-h-[2.5rem] text-base md:text-lg font-medium text-dark-text bg-secondary/10 rounded-md px-4 py-2 mb-2 transition-colors duration-200" aria-live="polite" aria-atomic="true">
-                        <!-- Translated text will appear here -->
-                    </div>
-                    <div class="flex flex-col gap-2">
-                        <div class="flex justify-between items-center">
-                            <span class="text-xs md:text-sm text-muted">Translation:</span>
-                            <span class="text-sm md:text-base font-bold" id="translationWord">---</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-xs md:text-sm text-muted">Pronunciation:</span>
-                            <span class="text-sm md:text-base font-bold" id="pronunciationWord">---</span>
-                        </div>
-                    </div>
-                </div>
-                <button class="mt-4 px-4 py-2 rounded-full bg-error text-white font-semibold shadow hover:bg-warning focus:outline-none focus:ring-2 focus:ring-accent active:scale-95 transition-all duration-200 w-full md:w-auto" id="clearBtn">Clear</button>
-            </section>
-        </main>
+    <!-- Apply light South African-inspired background for commercial appeal -->
+    <div class="min-h-screen bg-[#fff8e1] text-[#333333] flex flex-col items-center py-12 px-4">
+      <div class="container mx-auto px-2 sm:px-4 max-w-7xl flex flex-col gap-8">
+          <button class="fixed top-4 right-4 z-50 w-10 h-10 rounded-full bg-light text-primary shadow-md flex items-center justify-center hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-primary transition-colors duration-200" id="themeToggle" title="Toggle light/dark mode" aria-label="Toggle light or dark mode"></button>
+      </div>
+      <main class="flex flex-col md:flex-row justify-center items-start gap-8 w-full max-w-[1200px] mx-auto mt-[-6rem] md:mt-[-8rem]" aria-label="Main content panels">
+          <section class="bg-dark/80 rounded-brand shadow-brand p-4 md:p-6 flex flex-col items-center gap-4 w-full max-w-md ml-0 md:mx-0" aria-labelledby="gestureDetectionTitle" role="region" tabindex="0">
+              <h2 id="gestureDetectionTitle" tabindex="-1" class="text-xl md:text-2xl font-bold text-light-text mb-2">Gesture Detection</h2>
+              <div class="flex items-center justify-center w-12 h-12 md:w-16 md:h-16 rounded-full bg-secondary/20 shadow-inner mb-2 animate-pulse" aria-hidden="true">
+                  <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                      <rect x="6" y="14" width="36" height="24" rx="4" fill="#4fc3f7"/>
+                      <rect x="14" y="8" width="20" height="8" rx="2" fill="#b3e5fc"/>
+                      <circle cx="24" cy="26" r="7" fill="#181c24" stroke="#90caf9" stroke-width="2"/>
+                      <circle cx="24" cy="26" r="3" fill="#90caf9"/>
+                  </svg>
+              </div>
+              <span class="text-xs md:text-sm text-muted font-medium mt-2" id="cameraPreviewLabel">Camera Preview</span>
+              <p class="text-xs text-muted mb-2" id="cameraInstruction">Start recording to begin gesture detection</p>
+              <div class="relative aspect-video w-full max-w-xs rounded-lg overflow-hidden border-4 border-muted shadow-inner flex items-center justify-center bg-black" id="webcamArea" aria-label="Live camera feed with gesture overlay" role="group">
+                  <video id="webcam" aria-label="Live camera view" aria-describedby="cameraPreviewLabel cameraInstruction" autoplay playsinline muted class="absolute top-0 left-0 w-full h-full object-cover z-10 rounded-lg" tabindex="0"></video>
+                  <canvas id="overlay" aria-label="Gesture overlay" class="absolute top-0 left-0 w-full h-full z-20 pointer-events-none" tabindex="-1"></canvas>
+                  <div class="absolute inset-0 flex items-center justify-center text-muted text-base md:text-lg font-semibold bg-black/70 z-30" id="webcamPlaceholder" aria-live="polite" aria-atomic="true">Camera unavailable</div>
+              </div>
+              <div id="results" class="mt-2"></div>
+              <button class="mt-4 px-4 md:px-6 py-2 rounded-full bg-primary text-white font-semibold shadow-lg hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-accent active:scale-95 transition-all duration-200 w-full md:w-auto" id="startDetectionBtn" type="button" aria-pressed="false" aria-controls="webcamArea" aria-label="Start or stop gesture detection">
+                  Start Detection
+              </button>
+          </section>
+          <section class="bg-light rounded-brand shadow-brand p-4 md:p-6 flex flex-col gap-2 w-full max-w-xs ml-0 md:mx-0 text-black" aria-label="Session statistics" tabindex="0">
+              <h3 class="text-base md:text-lg font-semibold text-primary mb-2">Session Statistics</h3>
+              <div class="flex justify-between items-center py-1">
+                  <div class="text-xs md:text-sm text-muted">Words</div>
+                  <div class="text-sm md:text-base font-bold" id="statsWords">0</div>
+              </div>
+              <div class="flex justify-between items-center py-1">
+                  <div class="text-xs md:text-sm text-muted">Accuracy</div>
+                  <div class="text-sm md:text-base font-bold" id="statsAccuracy">0%</div>
+              </div>
+              <div class="flex justify-between items-center py-1">
+                  <div class="text-xs md:text-sm text-muted">Status</div>
+                  <div class="text-sm md:text-base font-bold" id="statsStatus">Idle</div>
+              </div>
+          </section>
+          <section class="bg-light rounded-brand shadow-brand p-4 md:p-6 flex flex-col items-center gap-4 w-full max-w-md ml-0 md:mx-0 text-black" aria-label="Translated text panel" tabindex="0">
+              <h2 class="text-xl md:text-2xl font-bold text-light-text mb-2">Translated Text</h2>
+              <div class="hand-icon mb-2" aria-hidden="true">
+                  <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M14 28V14a4 4 0 1 1 8 0v14" stroke="#81c784" stroke-width="3" stroke-linecap="round"/>
+                      <path d="M22 28V10a4 4 0 1 1 8 0v18" stroke="#81c784" stroke-width="3" stroke-linecap="round"/>
+                      <path d="M30 28V18a4 4 0 1 1 8 0v10" stroke="#81c784" stroke-width="3" stroke-linecap="round"/>
+                      <rect x="10" y="28" width="28" height="10" rx="5" fill="#c8e6c9"/>
+                  </svg>
+              </div>
+              <div class="text-xs md:text-sm text-muted mb-2">Start gesture detection to see translated text here</div>
+              <div id="translatedTextPanel" class="w-full">
+                  <div id="translatedText" class="flex flex-col gap-2 min-h-[2.5rem] text-base md:text-lg font-medium text-dark-text bg-secondary/10 rounded-md px-4 py-2 mb-2 transition-colors duration-200" aria-live="polite" aria-atomic="true">
+                      <!-- Translated text will appear here -->
+                  </div>
+                  <div class="flex flex-col gap-2">
+                      <div class="flex justify-between items-center">
+                          <span class="text-xs md:text-sm text-muted">Translation:</span>
+                          <span class="text-sm md:text-base font-bold" id="translationWord">---</span>
+                      </div>
+                      <div class="flex justify-between items-center">
+                          <span class="text-xs md:text-sm text-muted">Pronunciation:</span>
+                          <span class="text-sm md:text-base font-bold" id="pronunciationWord">---</span>
+                      </div>
+                  </div>
+              </div>
+              <button class="mt-4 px-4 py-2 rounded-full bg-error text-white font-semibold shadow hover:bg-warning focus:outline-none focus:ring-2 focus:ring-accent active:scale-95 transition-all duration-200 w-full md:w-auto" id="clearBtn">Clear</button>
+          </section>
+      </main>
     </div>
     <!-- Spinner and feedback animations -->
     <div class="spinner animate-spin w-8 h-8 border-4 border-secondary border-t-transparent rounded-full mx-auto my-4" id="spinner" style="display:none"></div>
