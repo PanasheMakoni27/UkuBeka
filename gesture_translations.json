@@ -1,0 +1,32 @@
+{
+  "hello": {
+    "en": "Hello",
+    "af": "Hallo",
+    "xh": "Molo",
+    "zu": "Sawubona"
+  },
+  "thank_you": {
+    "en": "Thank you",
+    "af": "Dankie",
+    "xh": "Enkosi",
+    "zu": "Ngiyabonga"
+  },
+  "goodbye": {
+    "en": "Goodbye",
+    "af": "Totsiens",
+    "xh": "Hamba kakuhle",
+    "zu": "Hamba kahle"
+  },
+  "yes": {
+    "en": "Yes",
+    "af": "Ja",
+    "xh": "Ewe",
+    "zu": "Yebo"
+  },
+  "no": {
+    "en": "No",
+    "af": "Nee",
+    "xh": "Hayi",
+    "zu": "Cha"
+  }
+}

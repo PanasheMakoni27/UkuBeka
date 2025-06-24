@@ -3,6 +3,7 @@ import joblib
 import numpy as np
 import os
 import traceback
+import json
 
 app = Flask(__name__)
 
@@ -71,6 +72,17 @@ def predict():
     except Exception as e:
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
+
+@app.route('/get_translations')
+def get_translations():
+    lang = request.args.get('lang', 'en')
+    with open('gesture_translations.json', 'r', encoding='utf-8') as f:
+        all_translations = json.load(f)
+    # Build a dict of gesture_key: translation for the requested language, fallback to English
+    translations = {}
+    for gesture, langs in all_translations.items():
+        translations[gesture] = langs.get(lang) or langs.get('en') or gesture
+    return jsonify(translations)
 
 if __name__ == '__main__':
     app.run(debug=True)

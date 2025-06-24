@@ -1,0 +1,169 @@
+<div style="display: flex; justify-content: space-between; align-items: center; padding: 1em 2em 1em 1em; background: #fff; box-shadow: 0 2px 8px #1976d211;">
+  <div style="display: flex; align-items: center;">
+    <img src="/static/logo.png" alt="Logo" style="height: 40px; margin-right: 0.8em;" onerror="this.style.display='none'">
+    <span style="font-size: 1.5em; font-weight: bold; color: #1976d2;">UkuBeka</span>
+  </div>
+  <div style="display:flex; justify-content: flex-end; align-items: center;">
+    <label for="language-dropdown" style="margin-right: 0.5em; font-weight: 500; font-size: 1.1em;">Language</label>
+    <select
+      id="language-dropdown"
+      onchange="onLanguageChange(this.value)"
+      style="
+        border-radius: 24px;
+        background: #f4f4f4;
+        box-shadow: 0 2px 8px #1976d233;
+        padding: 0.5em 1.2em;
+        font-size: 1em;
+        border: none;
+        outline: none;
+        font-family: inherit;
+        color: #23272f;
+        font-weight: 500;
+        cursor: pointer;
+      "
+    >
+      <option value="en">English</option>
+      <option value="af">Afrikaans</option>
+      <option value="xh">Xhosa</option>
+      <option value="zu">Zulu</option>
+    </select>
+  </div>
+</div>
+
+<div id="gesture-feedback" class="gesture-feedback" aria-live="polite"></div>
+
+<div id="gesture-translation" style="margin-top:1em; font-size:2.5em; font-weight:bold; color:#1976d2; min-height:2.5em; text-align:center;"></div>
+
+<div id="pronunciation-container" style="display:none; justify-content:center; align-items:center; margin-top:0.5em;">
+  <span style="font-size:1.1em; color:#1976d2; font-style:italic; font-weight:500; background:#e3f2fd; border-radius:0.5em; padding:0.2em 0.8em;">
+    Pronunciation: <span id="pronunciation-text"></span>
+  </span>
+</div>
+
+<div id="gesture-history-panel" style="max-height: 220px; overflow-y: auto; background: #f8fafc; border-radius: 1em; box-shadow: 0 2px 8px #1976d211; margin: 1.5em auto 0 auto; padding: 1em 1.2em; width: 100%; max-width: 480px;">
+  <div style="font-weight: 600; color: #1976d2; font-size: 1.1em; margin-bottom: 0.7em;">Gesture History</div>
+  <ul id="gesture-history-list" style="list-style: none; padding: 0; margin: 0;"></ul>
+</div>
+
+<script>
+  let currentLanguage = document.getElementById('language-dropdown').value;
+  let currentTranslations = {};
+
+  const langSpeechCodes = {
+    en: 'en-US',
+    af: 'af-ZA',
+    xh: 'xh-ZA',
+    zu: 'zu-ZA'
+  };
+
+  function onLanguageChange(lang) {
+    currentLanguage = lang;
+    document.getElementById('language-dropdown').value = lang;
+    fetchTranslations(lang);
+  }
+
+  function fetchTranslations(lang) {
+    fetch(`/get_translations?lang=${encodeURIComponent(lang)}`)
+      .then(response => response.json())
+      .then(data => {
+        currentTranslations = data;
+        document.getElementById('gesture-translation').textContent = '';
+      })
+      .catch(error => {
+        console.error('Error fetching translations:', error);
+      });
+  }
+
+  function speakTranslation(text, lang) {
+    if (!window.speechSynthesis) return;
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = langSpeechCodes[lang] || 'en-US';
+    window.speechSynthesis.speak(utter);
+  }
+
+  function showGestureFeedback(success, message) {
+    const feedback = document.getElementById('gesture-feedback');
+    if (!feedback) return;
+    feedback.innerHTML = `<span>${message}</span>`;
+    feedback.className = `gesture-feedback ${success ? 'success' : 'error'} visible`;
+    setTimeout(() => feedback.classList.remove('visible'), 1800);
+  }
+
+  function addToGestureHistory(gestureKey, translation) {
+    const list = document.getElementById('gesture-history-list');
+    if (!list) return;
+
+    const li = document.createElement('li');
+    li.style.display = 'flex';
+    li.style.alignItems = 'center';
+    li.style.justifyContent = 'space-between';
+    li.style.gap = '0.7em';
+    li.style.padding = '0.4em 0';
+    li.innerHTML = `
+      <span style="display:flex;align-items:center;gap:0.5em;">
+        <span style="font-size:1em;font-weight:500;color:#23272f;">${gestureKey}</span>
+        <span style="font-size:1em;color:#1976d2;">${translation}</span>
+      </span>
+      <button title="Play translation" style="background:none;border:none;cursor:pointer;font-size:1.2em;color:#1976d2;padding:0 0.3em;" onclick="speakTranslation('${translation.replace(/'/g, "\\'")}', currentLanguage)">Play</button>
+    `;
+    list.appendChild(li);
+    list.parentElement.scrollTop = list.parentElement.scrollHeight;
+  }
+
+  function onGestureRecognized(gestureKey) {
+    const translation = currentTranslations[gestureKey] || gestureKey;
+    document.getElementById('gesture-translation').textContent = translation;
+    speakTranslation(translation, currentLanguage);
+    showGestureFeedback(true, 'Gesture recognized: ' + translation);
+    addToGestureHistory(gestureKey, translation);
+
+    const pronunciation = currentTranslations[`${gestureKey}_pronunciation`] || currentTranslations.pronunciation || '';
+    const pronContainer = document.getElementById('pronunciation-container');
+    const pronText = document.getElementById('pronunciation-text');
+
+    if (pronunciation && pronunciation !== '---') {
+      pronText.textContent = pronunciation;
+      pronContainer.style.display = 'flex';
+    } else {
+      pronText.textContent = '';
+      pronContainer.style.display = 'none';
+    }
+  }
+
+  function onNoGestureDetected() {
+    showGestureFeedback(false, 'No gesture detected. Try again');
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    fetchTranslations('en');
+    currentLanguage = 'en';
+    document.getElementById('language-dropdown').value = 'en';
+  });
+</script>
+
+<style>
+  .gesture-feedback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.7em;
+    font-size: 1.4em;
+    font-weight: 500;
+    min-height: 2.2em;
+    opacity: 0;
+    transition: opacity 0.4s;
+    margin: 1.2em 0 0.5em 0;
+  }
+
+  .gesture-feedback.visible {
+    opacity: 1;
+  }
+
+  .gesture-feedback.success {
+    color: #2e7d32;
+  }
+
+  .gesture-feedback.error {
+    color: #d32f2f;
+  }
+</style>
