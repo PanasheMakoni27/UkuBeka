@@ -455,5 +455,133 @@
             };
         }
     </script>
+    <!-- Onboarding Modal -->
+    <div id="onboardingModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 opacity-0 pointer-events-none transition-opacity duration-300" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle">
+      <div class="bg-white rounded-brand p-6 max-w-lg w-[90%] mx-4 shadow-brand">
+        <h2 id="onboardingTitle" class="text-2xl font-bold text-primary mb-4">Welcome to UkuBeka! 👋</h2>
+        <div id="onboardingContent"></div>
+        <div class="flex justify-between mt-6">
+          <button id="onboardingPrev" class="px-4 py-2 rounded-full bg-gray-100 text-gray-700 font-semibold hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-primary transition-colors">Previous</button>
+          <button id="onboardingNext" class="px-4 py-2 rounded-full bg-primary text-white font-semibold hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-accent transition-colors">Next</button>
+        </div>
+        <div class="flex justify-center gap-2 mt-4" id="onboardingDots"></div>
+      </div>
+    </div>
+
+    <script>
+    // Place this before your existing scripts
+    const onboardingSteps = [
+      {
+        title: 'Welcome to UkuBeka',
+        content: `
+          <p class="text-lg mb-4">UkuBeka helps you communicate through hand gestures, bridging language barriers effortlessly.</p>
+          <div class="bg-light rounded-lg p-4">
+            <p class="text-base text-gray-700">🎯 Here's what you can do:</p>
+            <ul class="list-disc list-inside mt-2 space-y-2 text-gray-700">
+              <li>Translate hand gestures in real-time</li>
+              <li>Switch between multiple languages</li>
+              <li>Get instant visual feedback</li>
+            </ul>
+          </div>
+        `
+      },
+      {
+        title: 'Getting Started',
+        content: `
+          <div class="space-y-4">
+            <div class="flex items-start gap-3">
+              <span class="text-2xl">1️⃣</span>
+              <p>Click "Start Detection" to enable your camera</p>
+            </div>
+            <div class="flex items-start gap-3">
+              <span class="text-2xl">2️⃣</span>
+              <p>Show your hand gesture clearly to the camera</p>
+            </div>
+            <div class="flex items-start gap-3">
+              <span class="text-2xl">3️⃣</span>
+              <p>See translations appear instantly!</p>
+            </div>
+          </div>
+        `
+      },
+      {
+        title: 'Language Selection',
+        content: `
+          <div class="space-y-4">
+            <p class="text-lg">Choose your preferred language from the top-right dropdown:</p>
+            <div class="bg-light p-4 rounded-lg">
+              <ul class="space-y-2 text-gray-700">
+                <li>🇬🇧 English</li>
+                <li>🇿🇦 Afrikaans</li>
+                <li>🇿🇦 Xhosa</li>
+                <li>🇿🇦 Zulu</li>
+              </ul>
+            </div>
+            <p class="text-sm text-gray-600 mt-4">Your selection will be remembered for future visits.</p>
+          </div>
+        `
+      }
+    ];
+
+    function initOnboarding() {
+      const hasCompletedOnboarding = localStorage.getItem('hasCompletedOnboarding');
+      if (hasCompletedOnboarding) return;
+
+      const modal = document.getElementById('onboardingModal');
+      const content = document.getElementById('onboardingContent');
+      const prevBtn = document.getElementById('onboardingPrev');
+      const nextBtn = document.getElementById('onboardingNext');
+      const dotsContainer = document.getElementById('onboardingDots');
+      let currentStep = 0;
+
+      function updateModal() {
+        const step = onboardingSteps[currentStep];
+        document.getElementById('onboardingTitle').textContent = step.title;
+        content.innerHTML = step.content;
+        
+        prevBtn.style.visibility = currentStep === 0 ? 'hidden' : 'visible';
+        nextBtn.textContent = currentStep === onboardingSteps.length - 1 ? 'Get Started' : 'Next';
+        
+        // Update dots
+        dotsContainer.innerHTML = onboardingSteps.map((_, index) => `
+          <div class="w-2 h-2 rounded-full transition-colors ${index === currentStep ? 'bg-primary' : 'bg-gray-300'}"></div>
+        `).join('');
+      }
+
+      function showModal() {
+        modal.classList.remove('opacity-0', 'pointer-events-none');
+        updateModal();
+      }
+
+      function hideModal() {
+        modal.classList.add('opacity-0', 'pointer-events-none');
+        localStorage.setItem('hasCompletedOnboarding', 'true');
+      }
+
+      prevBtn.addEventListener('click', () => {
+        if (currentStep > 0) {
+          currentStep--;
+          updateModal();
+        }
+      });
+
+      nextBtn.addEventListener('click', () => {
+        if (currentStep < onboardingSteps.length - 1) {
+          currentStep++;
+          updateModal();
+        } else {
+          hideModal();
+        }
+      });
+
+      // Show modal after a brief delay
+      setTimeout(showModal, 1000);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      // ...existing DOMContentLoaded code...
+      initOnboarding();
+    });
+    </script>
 </body>
 </html>
